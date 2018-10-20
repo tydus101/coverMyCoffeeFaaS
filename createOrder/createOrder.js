@@ -1,4 +1,5 @@
 var Cloudant = require('@cloudant/cloudant');
+var SHA256 = require("crypto-js/sha256");
 /**
   *
   * main() will be run when you invoke this action
@@ -13,9 +14,20 @@ var Cloudant = require('@cloudant/cloudant');
                         plugins: {
                           iamauth:{iamApiKey:"37Pn-vO32bZigYfMvVI5eTYHWf9vVkG4BdsgdDDVvd44"}
                         }});
-  orders = client.db.use("orders");
+  newOrder = {
+    "_id": SHA256(Date.now().toString()).toString(),
+    "gifter_first_name": params.gifter_first_name,
+    "gifter_last_name": params.gifter_last_name,
+    "card_number": params.card_number,
+    "CVV": params.CVV,
+    "exp_year": params.exp_year,
+    "exp_month": params.exp_month,
+    "gift_type": params.gift_type,
+    "amount": params.amount
+  }
+  orders = client.use('orders');
   return new Promise(function(resolve,reject){
-    orders.get(params.id, function(err, res) {
+    orders.insert(newOrder, function(err, res) {
       if (err) {
         return reject(err)
       }
